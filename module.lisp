@@ -19,8 +19,14 @@
   ((visibility :initarg :visibility :accessor visibility))
   (:default-initargs :visibility 1.0))
 
+(defmethod update ((updatable updatable))
+  (noop))
+
+(defmethod paint ((paintable paintable) target)
+  (noop))
+
 (defun main (&key (blocking NIL))
-  "Launches the game in debug mode."
+  "Displays the star field."
   (unless *main-window*
     (setf v:*global-controller* (v:make-standard-global-controller))
     (with-main-window (window 'main :blocking blocking :name *title*))))

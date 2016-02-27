@@ -2,21 +2,22 @@
 (in-readtable :qtools)
 
 (defclass starfield (updatable paintable)
-  ((stars :initarg :stars :accessor stars))
-  (:default-initargs
-   :stars NIL))
+  ((stars :initarg :stars :initform NIL :accessor stars)))
 
-(defmethod initialize-instance :after ((starfield starfield) &key)
-  (dotimes (i 100)
-    (push (initialize-instance 'star
-                               :id i
-                               :location (list (random (q+:width *main-window*))
-                                               (random (q+:height *main-window*)))
-                               :brightness (+ (random 2)
-                                              (cond ((< i 25) 1)
-                                                    ((< i 50) 3)
-                                                    (T 5))))
-          (stars starfield))))
+(defmethod initialize-instance :after ((starfield starfield) &key (stars NIL))
+  (setf (slot-value starfield 'stars) NIL)
+  (if stars
+      (setf (slot-value starfield 'stars) stars)
+      (dotimes (i 100)
+        (push (make-instance 'star
+                             :id i
+                             :location (list (random (q+:width *main-window*))
+                                             (random (q+:height *main-window*)))
+                             :brightness (+ (random 2)
+                                            (cond ((< i 25) 1)
+                                                  ((< i 50) 3)
+                                                  (T 5))))
+              (stars starfield)))))
 
 (defmethod update ((starfield starfield))
   (call-next-method)
