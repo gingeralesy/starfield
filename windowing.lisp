@@ -2,14 +2,13 @@
 (in-readtable :qtools)
 
 (define-widget main (QWidget)
-  ((field :initform NIL :accessor field))
-  (:default-initargs
-   :field (initialize-instance 'starfield)))
+  ((field :initform NIL :accessor field)))
 
 (define-initializer (main setup)
   (setf *main-window* main)
   (q+:resize main 1024 768)
-  (setf (q+:window-title main) *title*))
+  (setf (q+:window-title main) *title*)
+  (setf (field main) (initialize-instance 'starfield :stars NIL)))
 
 (define-finalizer (main teardown)
   (setf *main-window* NIL))
