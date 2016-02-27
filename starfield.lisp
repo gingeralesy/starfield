@@ -14,8 +14,7 @@
                                               (cond ((< i 25) 1)
                                                     ((< i 50) 3)
                                                     (T 5))))
-          (stars starfield)))
-  (call-next-method))
+          (stars starfield))))
 
 (defmethod update ((starfield starfield))
   (call-next-method)
