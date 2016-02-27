@@ -9,7 +9,7 @@
 (defmethod initialize-instance :after ((starfield starfield) &key)
   (dotimes (i 100)
     (push (initialize-instance 'star
-                               :id (format NIL "bot-~a" i)
+                               :id i
                                :location (list (random (q+:width *main-window*))
                                                (random (q+:height *main-window*)))
                                :brightness (+ (random 2)
