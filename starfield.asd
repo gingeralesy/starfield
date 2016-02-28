@@ -11,6 +11,5 @@
                :qtcore
                :qtgui)
   :components ((:file "module")
-               (:file "star")
                (:file "starfield")
                (:file "windowing")))

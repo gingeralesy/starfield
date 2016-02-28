@@ -23,6 +23,7 @@
   (declare (connected timer (timeout)))
   (let ((start (get-internal-real-time)))
     (with-simple-restart (abort "Abort the update and continue.")
+      (incf *cycle*)
       (update (field main)))
     (q+:repaint main)
     (let ((time (round (max 0 (- *fps* (* (/ (- (get-internal-real-time) start)
