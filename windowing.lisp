@@ -9,10 +9,20 @@
   (setf *main-window* main)
   (q+:resize main 1024 768)
   (setf (q+:window-title main) *title*)
+  (setf *star-colors*
+        `(,(q+:make-qcolor 255 255 255)   ;; White
+          ,(q+:make-qcolor 100 255 100)   ;; Green
+          ,(q+:make-qcolor 100 100 255)   ;; Blue
+          ,(q+:make-qcolor 100 255 255)   ;; Yellow
+          ,(q+:make-qcolor 255 100 100))) ;; Red
   (setf (slot-value main 'field) (make-instance 'starfield :stars NIL)))
 
 (define-finalizer (main teardown)
-  (setf *main-window* NIL))
+  (setf *main-window* NIL)
+  (finalize (field main))
+  (setf (slot-value main 'field) NIL)
+  (loop for color in *star-colors*
+        do (finalize color)))
 
 (define-subwidget (main timer) (q+:make-qtimer main)
   (setf (q+:single-shot timer) T)
