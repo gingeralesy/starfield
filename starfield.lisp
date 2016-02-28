@@ -2,6 +2,11 @@
 (in-readtable :qtools)
 
 (defparameter *star-count* (+ 900 (random 200)))
+(defparameter *star-colors* `(,(q+:make-qcolor 255 255 255)   ;; White
+                              ,(q+:make-qcolor 100 255 100)   ;; Green
+                              ,(q+:make-qcolor 100 100 255)   ;; Blue
+                              ,(q+:make-qcolor 100 255 255)   ;; Yellow
+                              ,(q+:make-qcolor 255 100 100))) ;; Red
 
 ;; === Starfield ===
 (defclass starfield (updatable paintable)
@@ -9,20 +14,17 @@
 
 (defmethod initialize-instance :after ((starfield starfield) &key)
   (setf (slot-value starfield 'stars) NIL)
-  (let ((colors `(,(q+:make-qcolor 255 255 255) ,(q+:make-qcolor 0 255 0)
-                  ,(q+:make-qcolor 0 0 255) ,(q+:make-qcolor 0 255 255)
-                  ,(q+:make-qcolor 255 0 0))))
-    (dotimes (i *star-count*)
-      (push (make-instance 'star
-                           :id i
-                           :location (list (random (q+:width *main-window*))
-                                           (random (q+:height *main-window*)))
-                           :brightness (+ (random 2)
-                                          (cond ((< i (/ *star-count* 4)) 1)
-                                                ((< i (/ *star-count* 2)) 3)
-                                                (T 5)))
-                           :color (nth (random (length colors)) colors))
-            (stars starfield)))))
+  (dotimes (i *star-count*)
+    (push (make-instance 'star
+                         :id i
+                         :location (list (random (q+:width *main-window*))
+                                         (random (q+:height *main-window*)))
+                         :brightness (+ (random 2)
+                                        (cond ((< i (/ *star-count* 4)) 1)
+                                              ((< i (/ *star-count* 2)) 3)
+                                              (T 5)))
+                         :color (nth (random (length *star-colors*)) *star-colors*))
+          (stars starfield))))
 
 (defmethod update ((starfield starfield))
   (call-next-method)
