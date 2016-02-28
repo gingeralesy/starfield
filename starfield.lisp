@@ -66,8 +66,9 @@
 
 (defmethod paint ((star star) target)
   (call-next-method)
-  (let ((loc (location star)))
-    (q+:fill-rect target (first loc) (second loc) 1 1
-                  (if (twinkle star)
-                      (q+:darker (color star) 200)
-                      (color star)))))
+  (let ((loc (location star))
+        (pen (q+:make-qpen (if (twinkle star)
+                               (q+:darker (color star) 200)
+                               (color star)))))
+    (q+:set-pen target pen)
+    (q+:draw-point target (first loc) (second loc))))
