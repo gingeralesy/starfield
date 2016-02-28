@@ -7,7 +7,7 @@
 
 (defvar *main-window* NIL)
 (defvar *cycle* 0)
-(defparameter *fps* 1000/30)
+(defparameter *fps* 1/30)
 (defparameter *title* "Starfield")
 
 (defclass updatable () ())

@@ -28,9 +28,9 @@
       (update (field main)))
     (q+:repaint main)
     (q+:start timer 
-              (round (max 0 (- *fps* (* (/ (- (get-internal-real-time) start)
-                                           internal-time-units-per-second)
-                                        1000)))))))
+              (round (max 0 (* (- *fps* (/ (- (get-internal-real-time) start)
+                                           internal-time-units-per-second))
+                               1000))))))
 
 (define-override (main paint-event) (ev)
   (with-simple-restart (abort "Abort the drawing and continue.")
