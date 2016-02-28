@@ -5,6 +5,7 @@
   ((field :initform NIL :accessor field)))
 
 (define-initializer (main setup)
+  (setf *cycle* 0)
   (setf *main-window* main)
   (q+:resize main 1024 768)
   (setf (q+:window-title main) *title*)
@@ -22,8 +23,8 @@
 (define-slot (main update) ()
   (declare (connected timer (timeout)))
   (let ((start (get-internal-real-time)))
+    (incf *cycle* 1)
     (with-simple-restart (abort "Abort the update and continue.")
-      (incf *cycle*)
       (update (field main)))
     (q+:repaint main)
     (let ((time (round (max 0 (- *fps* (* (/ (- (get-internal-real-time) start)

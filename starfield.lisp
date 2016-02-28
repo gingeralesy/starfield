@@ -7,6 +7,8 @@
                               ,(q+:make-qcolor 100 100 255)   ;; Blue
                               ,(q+:make-qcolor 100 255 255)   ;; Yellow
                               ,(q+:make-qcolor 255 100 100))) ;; Red
+(defparameter *twinkle-time* 15)
+(defparameter *twinkle-chance* 2)
 
 ;; === Starfield ===
 (defclass starfield (updatable paintable)
@@ -38,10 +40,11 @@
 
 ;; === Star ===
 (defclass star (updatable paintable)
-  ((id :initarg :id :accessor od)
+  ((id :initarg :id :accessor id)
    (location :initarg :location :accessor location)
    (brightness :initarg :brightness :accessor brightness)
-   (color :initarg :color :accessor color))
+   (color :initarg :color :accessor color)
+   (twinkle :initform NIL :accessor twinkle))
   (:default-initargs
    :id (error "Please give star an id.")
    :location (error "Please define coordinates.")
@@ -53,10 +56,18 @@
   (when (< (brightness star) 1) (setf (slot-value star 'brightness) 1)))
 
 (defmethod update ((star star))
-  (call-next-method))
+  (call-next-method)
+  (let ((twinkle (twinkle star)))
+    (if twinkle
+        (when (< twinkle *cycle*)
+          (setf (slot-value star 'twinkle) NIL))
+        (unless (< *twinkle-chance* (random 100))
+          (setf (slot-value star 'twinkle) (+ *cycle* *twinkle-time*))))))
 
 (defmethod paint ((star star) target)
   (call-next-method)
   (let ((loc (location star)))
     (q+:fill-rect target (first loc) (second loc) 1 1
-                  (q+:darker (color star) (+ 100 (* 20 (brightness star)))))))
+                  (if (twinkle star)
+                      (q+:darker (color star) 200)
+                      (color star)))))
