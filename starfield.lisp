@@ -16,17 +16,19 @@
 
 (defmethod initialize-instance :after ((starfield starfield) &key)
   (setf (slot-value starfield 'stars) NIL)
-  (dotimes (i *star-count*)
-    (push (make-instance 'star
-                         :id i
-                         :location (list (random (q+:width *main-window*))
-                                         (random (q+:height *main-window*)))
-                         :brightness (+ (random 2)
-                                        (cond ((< i (/ *star-count* 4)) 1)
-                                              ((< i (/ *star-count* 2)) 3)
-                                              (T 5)))
-                         :color (nth (random (length *star-colors*)) *star-colors*))
-          (stars starfield))))
+  (let ((quarter-stars (floor (/ *star-count* 4)))
+        (half-stars (floor (/ *star-count* 2))))
+    (dotimes (i *star-count*)
+      (push (make-instance 'star
+                           :id i
+                           :location (list (random (q+:width *main-window*))
+                                           (random (q+:height *main-window*)))
+                           :brightness (+ (random 2)
+                                          (cond ((< i quarter-stars) 1)
+                                                ((< i half-stars) 3)
+                                                (T 5)))
+                           :color (nth (random (length *star-colors*)) *star-colors*))
+            (stars starfield)))))
 
 (defmethod update ((starfield starfield))
   (call-next-method)

@@ -27,10 +27,10 @@
     (with-simple-restart (abort "Abort the update and continue.")
       (update (field main)))
     (q+:repaint main)
-    (let ((time (round (max 0 (- *fps* (* (/ (- (get-internal-real-time) start)
-                                             internal-time-units-per-second)
-                                          1000))))))
-      (when (< 0 time) (q+:start timer time)))))
+    (q+:start timer 
+              (round (max 0 (- *fps* (* (/ (- (get-internal-real-time) start)
+                                           internal-time-units-per-second)
+                                        1000)))))))
 
 (define-override (main paint-event) (ev)
   (with-simple-restart (abort "Abort the drawing and continue.")
