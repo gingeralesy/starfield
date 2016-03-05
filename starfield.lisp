@@ -2,11 +2,7 @@
 (in-readtable :qtools)
 
 (defparameter *star-count* (+ 900 (random 200)))
-(defparameter *star-colors* `(,(q+:make-qcolor 255 255 255)   ;; White
-                              ,(q+:make-qcolor 100 255 100)   ;; Green
-                              ,(q+:make-qcolor 100 100 255)   ;; Blue
-                              ,(q+:make-qcolor 100 255 255)   ;; Yellow
-                              ,(q+:make-qcolor 255 100 100))) ;; Red
+(defparameter *star-colors* NIL)
 (defparameter *twinkle-time* 15)
 (defparameter *twinkle-chance* 500) ;; 500 means 1 in ever 500 stars per cycle will twinkle
 
@@ -27,7 +23,9 @@
                                           (cond ((< i quarter-stars) 1)
                                                 ((< i half-stars) 3)
                                                 (T 5)))
-                           :color (nth (random (length *star-colors*)) *star-colors*))
+                           :color (q+:make-qcolor
+                                   (nth (random (length *star-colors*))
+                                        *star-colors*)))
             (stars starfield)))))
 
 (defmethod update ((starfield starfield))
@@ -39,6 +37,10 @@
   (call-next-method)
   (loop for star in (stars starfield)
         do (paint star target)))
+
+(defmethod finalize ((starfield starfield))
+  (loop for star in (stars starfield)
+        do (finalize star)))
 
 ;; === Star ===
 (defclass star (updatable paintable)
@@ -68,12 +70,17 @@
 
 (defmethod paint ((star star) target)
   (call-next-method)
-  (let ((loc (location star))
-        (pen (q+:make-qpen (if (twinkle star)
-                               (q+:darker (color star) 200)
-                               (color star)))))
-    (q+:set-pen target pen)
-    (q+:draw-point target (first loc) (second loc))))
+  (let ((loc (location star)))
+    (with-finalizing ((darker (q+:darker (color star) 200)))
+      (with-finalizing
+          ((pen (q+:make-qpen (if (twinkle star)
+                                   darker
+                                  (color star)))))
+        (q+:set-pen target pen)
+        (q+:draw-point target (first loc) (second loc))))))
+
+(defmethod finalize ((star star))
+  (finalize (color star)))
 
 (defun twinkle-p ()
   (< (floor (/ *star-count* *twinkle-chance*)) (random 100)))

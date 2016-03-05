@@ -7,6 +7,9 @@
 
 (asdf:defsystem #:starfield
   :defsystem-depends-on (:qtools)
+  :build-operation "qt-program-op"
+  :build-pathname "starfield"
+  :entry-point "starfield:main"
   :depends-on (:qtools
                :qtcore
                :qtgui)
