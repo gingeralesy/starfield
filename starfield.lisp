@@ -8,7 +8,7 @@
                               ,(q+:make-qcolor 100 255 255)   ;; Yellow
                               ,(q+:make-qcolor 255 100 100))) ;; Red
 (defparameter *twinkle-time* 15)
-(defparameter *twinkle-chance* 2)
+(defparameter *twinkle-chance* 500) ;; 500 means 1 in ever 500 stars per cycle will twinkle
 
 ;; === Starfield ===
 (defclass starfield (updatable paintable)
@@ -63,7 +63,7 @@
     (if twinkle
         (when (< twinkle *cycle*)
           (setf (slot-value star 'twinkle) NIL))
-        (unless (< *twinkle-chance* (random 100))
+        (unless (twinkle-p)
           (setf (slot-value star 'twinkle) (+ *cycle* *twinkle-time*))))))
 
 (defmethod paint ((star star) target)
@@ -74,3 +74,6 @@
                                (color star)))))
     (q+:set-pen target pen)
     (q+:draw-point target (first loc) (second loc))))
+
+(defun twinkle-p ()
+  (< (floor (/ *star-count* *twinkle-chance*)) (random 100)))
