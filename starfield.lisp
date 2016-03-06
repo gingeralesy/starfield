@@ -48,7 +48,10 @@
   ((location :initarg :location :accessor location)
    (brightness :initarg :brightness :accessor brightness)
    (color :initarg :color :accessor color)
-   (twinkle :initform NIL :accessor twinkle))
+   (darker :initform NIL :accessor darker)
+   (twinkle :initform NIL :accessor twinkle)
+   (light-pen :initform NIL :accessor light)
+   (dark-pen :initform NIL :accessor dark))
   (:default-initargs
    :location (error "Please define coordinates.")
    :brightness 5
@@ -56,7 +59,10 @@
 
 (defmethod initialize-instance :after ((star star) &key)
   (when (< 10 (brightness star)) (setf (slot-value star 'brightness) 10))
-  (when (< (brightness star) 1) (setf (slot-value star 'brightness) 1)))
+  (when (< (brightness star) 1) (setf (slot-value star 'brightness) 1))
+  (setf (slot-value star 'darker) (q+:darker (color star) 200))
+  (setf (slot-value star 'light-pen) (q+:make-qpen (color star)))
+  (setf (slot-value star 'dark-pen) (q+:make-qpen (darker star))))
 
 (defmethod update ((star star))
   (call-next-method)
@@ -71,18 +77,16 @@
 
 (defmethod paint ((star star) target)
   (call-next-method)
-  (when (and (<= (first (location star)) (q+:width *main-window*))
-             (<= (second (location star)) (q+:height *main-window*)))
-    (let ((loc (location star)))
-      (with-finalizing ((darker (q+:darker (color star) 200)))
-        (with-finalizing
-            ((pen (q+:make-qpen (if (twinkle star)
-                                    darker
-                                    (color star)))))
-          (q+:set-pen target pen)
-          (q+:draw-point target (first loc) (second loc)))))))
+  (let ((loc (location star)))
+    (when (and (<= (first loc) (q+:width *main-window*))
+               (<= (second loc) (q+:height *main-window*)))
+      (q+:set-pen target (if (twinkle star) (dark star) (light star)))
+      (q+:draw-point target (first loc) (second loc)))))
 
 (defmethod finalize ((star star))
+  (finalize (dark star))
+  (finalize (light star))
+  (finalize (darker star))
   (finalize (color star)))
 
 (defun twinkle-p ()
