@@ -9,6 +9,7 @@
   (setf *main-window* main)
   (q+:resize main 1024 768)
   (setf (q+:window-title main) *title*)
+  (setf *stars-rect* (list (q+:width main) (q+:height main)))
   (setf *star-colors*
         `(,(q+:make-qcolor 255 255 255)   ;; White
           ,(q+:make-qcolor 100 255 100)   ;; Green
@@ -55,3 +56,12 @@
             (q+:style (q+:brush painter)) (q+:qt.solid-pattern))
       (q+:fill-rect painter (q+:rect main) bgbrush)
       (paint (field main) painter))))
+
+(define-override (main resize-event) (ev)
+  (let* ((size (q+:size ev))
+         (width-d (- (q+:width size) (first *stars-rect*)))
+         (height-d (- (q+:height size) (second *stars-rect*))))
+    (when (< 0 width-d)
+      (setf (first *stars-rect*) (q+:width size)))
+    (when (< 0 height-d)
+      (setf (second *stars-rect*) (q+:height size)))))

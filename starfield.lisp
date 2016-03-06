@@ -2,9 +2,11 @@
 (in-readtable :qtools)
 
 (defparameter *star-count* (+ 900 (random 200)))
-(defparameter *star-colors* NIL)
 (defparameter *twinkle-time* 15)
-(defparameter *twinkle-chance* 500) ;; 500 means 1 in ever 500 stars per cycle will twinkle
+(defparameter *twinkle-chance* 500) ;; 500 means 1 in every 500 stars per cycle will twinkle
+
+(defvar *star-colors* NIL)
+(defvar *stars-rect* '(0 0))
 
 ;; === Starfield ===
 (defclass starfield (updatable paintable)
@@ -16,9 +18,8 @@
         (half-stars (floor (/ *star-count* 2))))
     (dotimes (i *star-count*)
       (push (make-instance 'star
-                           :id i
-                           :location (list (random (q+:width *main-window*))
-                                           (random (q+:height *main-window*)))
+                           :location (list (random (first *stars-rect*))
+                                           (random (second *stars-rect*)))
                            :brightness (+ (random 2)
                                           (cond ((< i quarter-stars) 1)
                                                 ((< i half-stars) 3)
@@ -44,13 +45,11 @@
 
 ;; === Star ===
 (defclass star (updatable paintable)
-  ((id :initarg :id :accessor id)
-   (location :initarg :location :accessor location)
+  ((location :initarg :location :accessor location)
    (brightness :initarg :brightness :accessor brightness)
    (color :initarg :color :accessor color)
    (twinkle :initform NIL :accessor twinkle))
   (:default-initargs
-   :id (error "Please give star an id.")
    :location (error "Please define coordinates.")
    :brightness 5
    :color (q+:make-qcolor 255 255 255)))
@@ -61,23 +60,27 @@
 
 (defmethod update ((star star))
   (call-next-method)
-  (let ((twinkle (twinkle star)))
-    (if twinkle
-        (when (< twinkle *cycle*)
-          (setf (slot-value star 'twinkle) NIL))
-        (unless (twinkle-p)
-          (setf (slot-value star 'twinkle) (+ *cycle* *twinkle-time*))))))
+  (when (and (<= (first (location star)) (q+:width *main-window*))
+             (<= (second (location star)) (q+:height *main-window*)))
+    (let ((twinkle (twinkle star)))
+      (if twinkle
+          (when (< twinkle *cycle*)
+            (setf (slot-value star 'twinkle) NIL))
+          (unless (twinkle-p)
+            (setf (slot-value star 'twinkle) (+ *cycle* *twinkle-time*)))))))
 
 (defmethod paint ((star star) target)
   (call-next-method)
-  (let ((loc (location star)))
-    (with-finalizing ((darker (q+:darker (color star) 200)))
-      (with-finalizing
-          ((pen (q+:make-qpen (if (twinkle star)
-                                   darker
-                                  (color star)))))
-        (q+:set-pen target pen)
-        (q+:draw-point target (first loc) (second loc))))))
+  (when (and (<= (first (location star)) (q+:width *main-window*))
+             (<= (second (location star)) (q+:height *main-window*)))
+    (let ((loc (location star)))
+      (with-finalizing ((darker (q+:darker (color star) 200)))
+        (with-finalizing
+            ((pen (q+:make-qpen (if (twinkle star)
+                                    darker
+                                    (color star)))))
+          (q+:set-pen target pen)
+          (q+:draw-point target (first loc) (second loc)))))))
 
 (defmethod finalize ((star star))
   (finalize (color star)))
