@@ -1,3 +1,6 @@
+;; To run this first install Quicklisp from https://www.quicklisp.org/beta/
+;; and then load this file with your Common Lisp implementation.
+
 (defvar *ql-setup*
   (merge-pathnames
    #P"quicklisp/setup.lisp"
@@ -24,5 +27,6 @@
 #+clisp (ext:exit)
 #+ccl (ccl:quit)
 #+allegro (excl:exit)
+#+ecl (ext:quit)
 ;(starfield:main)
 
